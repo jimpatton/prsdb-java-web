@@ -41,12 +41,11 @@ public class RequestController {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Request not found for id " + id);
 		}
 	}
-	
+
 	@GetMapping("/list-review/{userId}")
 	public List<Request> listReview(@PathVariable int userId) {
 		return requestRepo.findByStatusAndUserIdNot("REVIEW", userId);
-	}		
-		
+	}
 
 	@PostMapping("")
 	public Request add(@RequestBody RequestCreate rc) {
@@ -118,7 +117,6 @@ public class RequestController {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Request not found for id " + id);
 		}
 
-
 	}
 
 	@PutMapping("/approve/{id}")
@@ -137,33 +135,23 @@ public class RequestController {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Request not found for id " + id);
 		}
 	}
-	
-	
+
 	@PutMapping("/reject/{id}")
-	public void reject(@PathVariable int id) {
-		if (requestRepo.existsById(id)) {
-			Request r = requestRepo.findById(id).get();
-			//if reasonForRejection != null
-			if (r.getReasonForRejection() == null) {
-				throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Reason for Request cannot be null");
-			}
-			else {
-			//update to REJECTED
-			r.setStatus("REJECTED");
-			//save changes
-			requestRepo.save(r);
+	public void reject(@PathVariable int id, @RequestBody Request request) {
+		if (id != request.getId()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request id mismatch vs URL");
+		} else if (requestRepo.existsById(id)) {		
+			if (request.getReasonForRejection() != null) {
+				request.setStatus("REJECTED");
+				requestRepo.save(request);
+			} else {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Reason for Request cannot be null");
 			}
 		}
-	
+		else {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Request not found for id " + id);
+		}
 	}
-	
-	
-	
-	
-	
-	
-	
-	
 
 	@DeleteMapping("/{id}")
 	public void delete(@PathVariable int id) {
