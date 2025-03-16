@@ -18,5 +18,6 @@ public interface RequestRepo extends JpaRepository<Request, Integer> {
 
 	List<Request> findByStatusAndUserIdNot(String status, int userId);
 
+	
 
 }
